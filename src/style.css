@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Material Design 3 Dynamic Colors are injected via JS */
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;

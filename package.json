@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@material/material-color-utilities": "^0.4.0",
     "@types/markdown-it": "^14.1.2",
     "@types/uuid": "^10.0.0",
     "@vueuse/core": "^14.2.1",

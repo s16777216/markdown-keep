@@ -1,12 +1,7 @@
 <template>
   <div>
     <TransitionGroup tag="div" name="list" class="column-container">
-      <NoteCard 
-        v-for="note in displayedNotes" 
-        :key="note.id"
-        :note="note"
-        class="mb-4 group"
-      />
+      <NoteCard v-for="note in displayedNotes" :key="note.id" :note="note" class="mb-4 group" />
     </TransitionGroup>
     <div v-if="displayedNotes.length === 0 && !noteStore.isLoading" class="text-center text-gray-500 mt-8">
       <p>{{ emptyMessage }}</p>
@@ -15,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useNoteStore } from '@/core/store/noteStore';
 import { useAppStore } from '@/core/store/appStore';
 import NoteCard from './NoteCard.vue';
@@ -24,6 +19,11 @@ const noteStore = useNoteStore();
 const appStore = useAppStore();
 
 const displayedNotes = computed(() => {
+  // If the current view is a label filter
+  if (appStore.currentView.startsWith('label:')) {
+    return noteStore.notesByLabel
+  }
+  // Otherwise, use the existing logic for other views
   switch (appStore.currentView) {
     case 'notes':
       return noteStore.activeNotes;
@@ -44,6 +44,7 @@ const emptyMessage = computed(() => {
       return 'Your archived notes will appear here.';
     case 'trash':
       return 'Notes in trash will appear here.';
+    // Add case for labels if needed
     default:
       return 'No notes to display.';
   }
@@ -77,7 +78,9 @@ onMounted(() => {
     column-count: 4;
   }
 }
-.list-move, /* apply transition to moving elements */
+
+.list-move,
+/* apply transition to moving elements */
 .list-enter-active,
 .list-leave-active {
   transition: all 0.5s ease;

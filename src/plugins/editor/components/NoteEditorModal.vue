@@ -1,27 +1,27 @@
 <template>
   <div
     v-if="appStore.editingNoteId"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    class="fixed inset-0 bg-scrim/50 flex items-center justify-center z-50 backdrop-blur-sm"
     @click="handleClose"
   >
     <div
-      class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl p-6 prose dark:prose-invert"
+      class="rounded-lg shadow-xl w-full max-w-2xl p-6 prose dark:prose-invert transition-colors duration-300"
       :class="backgroundColorClass"
       @click.stop
     >
       <input
         v-model="editableTitle"
-        class="w-full text-lg font-bold bg-transparent focus:outline-none mb-4"
+        class="w-full text-lg font-bold bg-transparent text-on-surface focus:outline-none mb-4 placeholder-on-surface-variant"
         placeholder="Title"
       />
       <textarea
         v-model="editableContent"
-        class="w-full h-64 bg-transparent focus:outline-none resize-none"
+        class="w-full h-64 bg-transparent text-on-surface focus:outline-none resize-none placeholder-on-surface-variant"
         placeholder="Take a note..."
       ></textarea>
       <div class="mt-4 flex justify-end">
-        <button @click="handleSave" class="px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600">
-          Save & Close
+        <button @click="handleClose" class="px-4 py-2 rounded-md hover:bg-surface-variant text-on-surface-variant transition-colors">
+          Close
         </button>
       </div>
     </div>
@@ -54,7 +54,7 @@ watch(note, (newNote) => {
   }
 });
 
-const handleSave = () => {
+const handleClose = () => {
   if (note.value) {
     noteStore.updateNote(note.value.id, {
       title: editableTitle.value,
@@ -64,17 +64,13 @@ const handleSave = () => {
   appStore.closeNoteEditor();
 };
 
-const handleClose = () => {
-  appStore.closeNoteEditor();
-};
-
 const colorMap: Record<string, string> = {
-  white: 'bg-white dark:bg-gray-800',
-  red: 'bg-red-200 dark:bg-red-900',
-  blue: 'bg-blue-200 dark:bg-blue-900',
-  green: 'bg-green-200 dark:bg-green-900',
-  yellow: 'bg-yellow-200 dark:bg-yellow-900',
-  purple: 'bg-purple-200 dark:bg-purple-900',
+  white: 'bg-surface border border-outline-variant',
+  red: 'bg-red-200 dark:bg-red-900 border border-transparent',
+  blue: 'bg-blue-200 dark:bg-blue-900 border border-transparent',
+  green: 'bg-green-200 dark:bg-green-900 border border-transparent',
+  yellow: 'bg-yellow-200 dark:bg-yellow-900 border border-transparent',
+  purple: 'bg-purple-200 dark:bg-purple-900 border border-transparent',
 };
 
 const backgroundColorClass = computed(() => {

@@ -6,27 +6,15 @@
         like the NoteInput and the MasonryGrid.
         We render them in order of registration.
       -->
-      <component
-        v-for="(comp, index) in pluginStore.registeredComponents.editor"
-        :key="index"
-        :is="comp"
-      />
+      <component v-for="(comp, index) in pluginStore.registeredComponents.editor" :key="index" :is="comp" />
     </template>
-    
+
     <template #sidebar>
-      <component
-        v-for="(comp, index) in pluginStore.registeredComponents.sidebar"
-        :key="index"
-        :is="comp"
-      />
+      <component v-for="(comp, index) in pluginStore.registeredComponents.sidebar" :key="index" :is="comp" />
     </template>
 
     <template #header>
-      <component
-        v-for="(comp, index) in pluginStore.registeredComponents.header"
-        :key="index"
-        :is="comp"
-      />
+      <component v-for="(comp, index) in pluginStore.registeredComponents.header" :key="index" :is="comp" />
     </template>
   </AppShell>
   <NoteEditorModal />
@@ -42,6 +30,8 @@ const pluginStore = usePluginStore();
 
 <style>
 body {
-  background-color: #f1f3f4; /* Google Keep's light gray background */
+  background-color: var(--md-sys-color-background);
+  color: var(--md-sys-color-on-background);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 </style>

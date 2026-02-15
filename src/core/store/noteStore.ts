@@ -13,22 +13,45 @@ export const useNoteStore = defineStore('noteStore', () => {
 
   // --- Getters ---
   const activeNotes = computed(() => {
-    const filtered = notes.value.filter(n => !n.isArchived && !n.isDeleted);
-    
+    const currentView = appStore.currentView;
     const query = appStore.searchQuery.toLowerCase();
-    const searched = !query 
-      ? filtered 
-      : filtered.filter(note => 
-          note.title.toLowerCase().includes(query) || 
-          note.content.toLowerCase().includes(query)
-        );
 
-    return searched
+    // Filter by label first if applicable
+    let filteredNotes = notes.value;
+    if (currentView.startsWith('label:')) {
+      const labelId = currentView.split(':')[1];
+      if (labelId) {
+        filteredNotes = filteredNotes.filter(note => note.labelIds?.includes(labelId));
+      }
+    }
+
+    // Apply search query filter
+    const searchedNotes = !query
+      ? filteredNotes
+      : filteredNotes.filter(note =>
+        note.title.toLowerCase().includes(query) ||
+        note.content.toLowerCase().includes(query)
+      );
+
+    // Apply other filters (pinned, archived, deleted) and sort
+    return searchedNotes
+      .filter(n => !n.isArchived && !n.isDeleted)
       .sort((a, b) => b.updatedAt - a.updatedAt)
       .sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0));
   });
 
-  const archivedNotes = computed(() => 
+  const notesByLabel = computed(() => {
+    if (!appStore.currentView.startsWith('label:')) {
+      return activeNotes.value;
+    }
+    const labelId = appStore.currentView.split(':')[1];
+    if (!labelId) {
+      return activeNotes.value; // Fallback if label ID is missing
+    }
+    return activeNotes.value.filter(note => note.labelIds?.includes(labelId));
+  });
+
+  const archivedNotes = computed(() =>
     notes.value.filter(n => n.isArchived && !n.isDeleted)
   );
 
@@ -58,11 +81,11 @@ export const useNoteStore = defineStore('noteStore', () => {
       isPinned: data.isPinned || false,
       isArchived: data.isArchived || false,
       isDeleted: false,
-      tags: data.tags || [],
+      labelIds: data.labelIds || [], // Updated from tags to labelIds
       createdAt: now,
       updatedAt: now,
     };
-    
+
     try {
       await NoteStorage.put(newNote);
       notes.value.unshift(newNote);
@@ -80,8 +103,8 @@ export const useNoteStore = defineStore('noteStore', () => {
     // Get the raw, non-reactive object before making changes
     const originalNote = toRaw(notes.value[noteIndex]);
 
-    const updatedNote: Note = { ...originalNote, ...changes, updatedAt: Date.now() };
-    
+    const updatedNote: Note = { ...originalNote, ...changes, updatedAt: Date.now() } as Note;
+
     try {
       // Now we are sure we are putting a plain object
       await NoteStorage.put(updatedNote);
@@ -130,6 +153,7 @@ export const useNoteStore = defineStore('noteStore', () => {
     activeNotes,
     archivedNotes,
     deletedNotes,
+    notesByLabel,
     fetchAllNotes,
     createNote,
     updateNote,
